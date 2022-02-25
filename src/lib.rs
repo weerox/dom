@@ -1,3 +1,5 @@
+mod dom;
+
 #[cfg(test)]
 mod tests {
     #[test]
