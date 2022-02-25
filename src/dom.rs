@@ -28,3 +28,32 @@ impl<T> Dom<T> {
         }
     }
 }
+
+impl<T> Clone for Dom<T> {
+        fn clone(&self) -> Dom<T> {
+            let dom = Dom {
+                ptr: self.ptr.clone(),
+            };
+
+            let mut count = dom.meta().count.get();
+            count += 1;
+            dom.meta().count.set(count);
+            debug_assert!(dom.meta().count.get() == self.meta().count.get());
+
+            dom
+        }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn clone_increases_count() {
+        let dom1 = Dom::new(1_u32);
+        let dom2 = dom1.clone();
+
+        assert_eq!(dom1.meta().count.get(), dom2.meta().count.get());
+        assert_eq!(dom1.meta().count.get(), 2);
+    }
+}
