@@ -10,6 +10,12 @@ pub struct Dom<T> {
 }
 
 impl<T> Dom<T> {
+    fn meta(&self) -> &DomMeta<T> {
+        unsafe { self.ptr.as_ref() }
+    }
+}
+
+impl<T> Dom<T> {
     pub fn new(value: T) -> Dom<T> {
         let meta = DomMeta {
             count: 1,
