@@ -1,7 +1,8 @@
+use std::cell::Cell;
 use std::ptr::NonNull;
 
 struct DomMeta<T> {
-    count: usize,
+    count: Cell<usize>,
     value: T,
 }
 
@@ -18,7 +19,7 @@ impl<T> Dom<T> {
 impl<T> Dom<T> {
     pub fn new(value: T) -> Dom<T> {
         let meta = DomMeta {
-            count: 1,
+            count: Cell::new(1),
             value: value,
         };
 
