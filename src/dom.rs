@@ -1,6 +1,7 @@
 use std::cell::Cell;
 use std::ptr::NonNull;
 use std::alloc::Layout;
+use std::ops::{Deref, DerefMut};
 
 struct DomMeta<T> {
     count: Cell<usize>,
@@ -73,6 +74,33 @@ impl<T> From<&T> for Dom<T> {
     }
 }
 
+impl<T> Deref for Dom<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        unsafe { &self.ptr.as_ref().value }
+    }
+}
+
+// SAFETY We have to mutably borrow the Dom<T> to be able to aquire
+//        a mutable reference to the underlying data T.
+//        This means that the normal borrowing rules will apply as long as
+//        we aquire the references through the same Dom<T>,
+//        see multi_mut_same_dom() and ref_and_mut_same_dom().
+//        If we have two Dom<T> copies that point to the same value T,
+//        then it is possible to circumvent the borrowing rules,
+//        e.g. to aquire two &mut T to the same value T, see test3().
+//        In practice, it would be quite unlikely to have to use two copies
+//        of a Dom<T> at the same time.
+// NOTE I will leave the Deref and DerefMut impls as is and later evaluate
+//      whether there is a need for stricter control that guarantees
+//      the XOR rule.
+impl<T> DerefMut for Dom<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        unsafe { &mut self.ptr.as_mut().value }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -93,5 +121,58 @@ mod tests {
         let dom_from = Dom::from(r);
         assert_eq!(dom.meta().count.get(), dom_from.meta().count.get());
         assert_eq!(dom.meta().count.get(), 2);
+    }
+
+    #[test]
+    fn multi_mut_same_dom() {
+        let mut dom = Dom::new(1234_u32);
+
+        #[allow(unused_variables)]
+        let x: &mut u32 = dom.deref_mut();
+        let y: &mut u32 = dom.deref_mut();
+
+        // NOTE As expected, we can't uncomment this,
+        // because that would require us to have two
+        // &mut u32 through the same Dom<u32>,
+        // which isn't possible.
+        //let a = *x;
+        let b = *y;
+
+        assert_eq!(b, 1234);
+    }
+
+    #[test]
+    fn ref_and_mut_same_dom() {
+        let mut dom = Dom::new(1234_u32);
+
+        #[allow(unused_variables)]
+        let x: &u32 = dom.deref();
+        let y: &mut u32 = dom.deref_mut();
+
+        // NOTE As expected, we can't uncomment this,
+        // because that would require us to have both a
+        // &u32 and a &mut u32 through the same Dom<u32>,
+        // which isn't possible.
+        //let a = *x;
+        let b = *y;
+
+        assert_eq!(b, 1234);
+    }
+
+    #[test]
+    fn multi_mut_different_dom() {
+        let mut dom1 = Dom::new(1234_u32);
+        let mut dom2 = dom1.clone();
+
+        // NOTE This is possible because
+        // the different references are aquired through
+        // different Dom<u32> copies.
+        let x: &mut u32 = dom1.deref_mut();
+        let y: &mut u32 = dom2.deref_mut();
+
+        let a = *x;
+        let b = *y;
+
+        assert_eq!(a, b);
     }
 }
