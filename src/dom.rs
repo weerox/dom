@@ -131,6 +131,12 @@ impl<T> Drop for Dom<T> {
     }
 }
 
+impl<T> PartialEq for Dom<T> {
+    fn eq(&self, other: &Dom<T>) -> bool {
+        self.ptr == other.ptr
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -204,5 +210,13 @@ mod tests {
         let b = *y;
 
         assert_eq!(a, b);
+    }
+
+    #[test]
+    fn dom_clone_equality() {
+        let dom1 = Dom::new(1234_u32);
+        let dom2 = dom1.clone();
+
+        assert!(dom1 == dom2);
     }
 }
