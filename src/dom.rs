@@ -114,6 +114,23 @@ impl<T> DerefMut for Dom<T> {
     }
 }
 
+// Drops the reference to the value.
+// If this was the last reference,
+// it will also drop the value.
+impl<T> Drop for Dom<T> {
+    fn drop(&mut self) {
+        self.decrease_count();
+
+        if self.count() == 0 {
+            // Reconstruct the Box from the pointer
+            // we leaked in Dom::new() and imidiately drop it.
+            // NOTE What happens if we reconstruct and drop a Box<T> that
+            // was allocated as a Box<U>?
+            unsafe { Box::from_raw(self.ptr.as_ptr()); }
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
