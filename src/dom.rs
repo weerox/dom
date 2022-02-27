@@ -117,7 +117,7 @@ mod tests {
     #[test]
     fn from_ref_increases_count() {
         let dom = Dom::new(1_u32);
-        let r = &dom.meta().value;
+        let r = dom.deref();
         let dom_from = Dom::from(r);
         assert_eq!(dom.meta().count.get(), dom_from.meta().count.get());
         assert_eq!(dom.meta().count.get(), 2);
