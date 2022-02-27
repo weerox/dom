@@ -16,6 +16,23 @@ impl<T> Dom<T> {
     fn meta(&self) -> &DomMeta<T> {
         unsafe { self.ptr.as_ref() }
     }
+
+    fn count(&self) -> usize {
+        self.meta().count.get()
+    }
+
+    fn increase_count(&self) {
+        let count = self.count();
+        debug_assert!(count > 0);
+        debug_assert!(count < usize::MAX);
+        self.meta().count.set(count + 1);
+    }
+
+    fn decrease_count(&self) {
+        let count = self.count();
+        debug_assert!(count > 0);
+        self.meta().count.set(count - 1);
+    }
 }
 
 impl<T> Dom<T> {
@@ -37,10 +54,8 @@ impl<T> Clone for Dom<T> {
                 ptr: self.ptr.clone(),
             };
 
-            let mut count = dom.meta().count.get();
-            count += 1;
-            dom.meta().count.set(count);
-            debug_assert!(dom.meta().count.get() == self.meta().count.get());
+            dom.increase_count();
+            debug_assert!(dom.count() == self.count());
 
             dom
         }
@@ -66,9 +81,7 @@ impl<T> From<&T> for Dom<T> {
             ptr: unsafe { NonNull::new_unchecked(ptr) },
         };
 
-        let mut count = dom.meta().count.get();
-        count += 1;
-        dom.meta().count.set(count);
+        dom.increase_count();
 
         dom
     }
@@ -110,8 +123,8 @@ mod tests {
         let dom1 = Dom::new(1_u32);
         let dom2 = dom1.clone();
 
-        assert_eq!(dom1.meta().count.get(), dom2.meta().count.get());
-        assert_eq!(dom1.meta().count.get(), 2);
+        assert_eq!(dom1.count(), dom2.count());
+        assert_eq!(dom1.count(), 2);
     }
 
     #[test]
@@ -119,8 +132,8 @@ mod tests {
         let dom = Dom::new(1_u32);
         let r = dom.deref();
         let dom_from = Dom::from(r);
-        assert_eq!(dom.meta().count.get(), dom_from.meta().count.get());
-        assert_eq!(dom.meta().count.get(), 2);
+        assert_eq!(dom.count(), dom_from.count());
+        assert_eq!(dom.count(), 2);
     }
 
     #[test]
