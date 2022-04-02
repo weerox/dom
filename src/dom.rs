@@ -102,7 +102,8 @@ impl<T> Deref for Dom<T> {
 //        see multi_mut_same_dom() and ref_and_mut_same_dom().
 //        If we have two Dom<T> copies that point to the same value T,
 //        then it is possible to circumvent the borrowing rules,
-//        e.g. to aquire two &mut T to the same value T, see test3().
+//        e.g. to aquire two &mut T to the same value T,
+//        see multi_mut_different_dom().
 //        In practice, it would be quite unlikely to have to use two copies
 //        of a Dom<T> at the same time.
 // NOTE I will leave the Deref and DerefMut impls as is and later evaluate
