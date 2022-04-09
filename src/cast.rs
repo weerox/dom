@@ -78,7 +78,7 @@ pub trait Interface {
 
 // Keeps track of the interface hierarchy by mapping an interface ID to the ID
 // of the interface it inherits from.
-struct Hierarchy {
+pub struct Hierarchy {
     map: HashMap<InterfaceID, Option<InterfaceID>>,
 }
 
@@ -93,7 +93,7 @@ impl Hierarchy {
     //      think that a mapping should ever have to be updated, so it might
     //      be a good idea to check if that happens, because it is probably
     //      an error.
-    fn register(&mut self, interface: InterfaceID, inherited: Option<InterfaceID>) {
+    pub fn register(&mut self, interface: InterfaceID, inherited: Option<InterfaceID>) {
         let res = self.map.insert(interface, inherited);
         debug_assert!(res.is_none());
     }
@@ -106,7 +106,7 @@ impl Hierarchy {
     }
 }
 
-static HIERARCHY: Lazy<RwLock<Hierarchy>> = Lazy::new(|| {
+pub static HIERARCHY: Lazy<RwLock<Hierarchy>> = Lazy::new(|| {
     RwLock::new(Hierarchy {
         map: HashMap::new(),
     })

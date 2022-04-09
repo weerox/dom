@@ -5,6 +5,11 @@ pub use crate::dom::Dom;
 
 pub use crate::cast::Cast;
 pub use crate::cast::{Interface, InterfaceID};
+pub use crate::cast::HIERARCHY;
+
+pub fn init() {
+    let mut hier = HIERARCHY.write().unwrap();
+}
 
 #[cfg(test)]
 mod tests {
