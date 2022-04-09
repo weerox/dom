@@ -1,5 +1,7 @@
 mod dom;
 
+pub use crate::dom::Dom;
+
 #[cfg(test)]
 mod tests {
     #[test]
