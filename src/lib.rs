@@ -1,6 +1,10 @@
 mod dom;
+mod cast;
 
 pub use crate::dom::Dom;
+
+pub use crate::cast::Cast;
+pub use crate::cast::{Interface, InterfaceID};
 
 #[cfg(test)]
 mod tests {
