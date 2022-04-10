@@ -7,6 +7,8 @@ pub use crate::cast::Cast;
 pub use crate::cast::{Interface, InterfaceID};
 pub use crate::cast::HIERARCHY;
 
+pub mod interface;
+
 pub fn init() {
     let mut hier = HIERARCHY.write().unwrap();
 }
