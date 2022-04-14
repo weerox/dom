@@ -123,6 +123,7 @@ impl<T> Drop for Dom<T> {
         self.decrease_count();
 
         if self.count() == 0 {
+            println!("Dropping Dom<{}>", std::any::type_name::<T>());
             // Reconstruct the Box from the pointer
             // we leaked in Dom::new() and imidiately drop it.
             // NOTE What happens if we reconstruct and drop a Box<T> that
@@ -219,5 +220,11 @@ mod tests {
         let dom2 = dom1.clone();
 
         assert!(dom1 == dom2);
+    }
+
+    #[test]
+    fn drop_dom_of_different_size() {
+        let large_num = Dom::new(1234_u64);
+        let small_num = unsafe { std::mem::transmute::<Dom<u64>, Dom<u8>>(large_num) };
     }
 }
