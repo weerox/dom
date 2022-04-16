@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::num::NonZeroU32;
 use std::sync::RwLock;
+use std::fmt;
 
 use once_cell::sync::Lazy;
 
@@ -41,7 +42,26 @@ use crate::Dom;
 // interface's supertype using a HashMap, which means that we can extract
 // the whole intheritance chain from this single topmost interface ID.
 
-pub type InterfaceID = NonZeroU32;
+#[derive(PartialEq, Eq, Hash, Clone, Copy)]
+pub struct InterfaceID(NonZeroU32);
+
+impl InterfaceID {
+    pub fn new(num: u32) -> InterfaceID {
+        let nonzero = NonZeroU32::new(num).unwrap_or_else(|| panic!("Can't create InterfaceID with ID {}", num));
+
+        InterfaceID(nonzero)
+    }
+
+    pub unsafe fn zero() -> InterfaceID {
+        InterfaceID(NonZeroU32::new_unchecked(0))
+    }
+}
+
+impl fmt::Display for InterfaceID {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
 
 // A convenience function to calculate if the interface whose ID is `top`
 // has a supertype whose ID is `sought`.
@@ -69,8 +89,7 @@ pub trait Interface {
         // The base interface, which will be the innermost struct,
         // MUST have the ID of the topmost interface as its first field.
         let top_id = unsafe { *(self as *const Self as *const u32) };
-        let top_id = NonZeroU32::new(top_id)
-            .unwrap_or_else(|| panic!("The stored ID of the topmost interface was 0"));
+        let top_id = InterfaceID::new(top_id);
         let sought_id = U::id();
         is(top_id, sought_id)
     }
