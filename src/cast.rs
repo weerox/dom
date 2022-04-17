@@ -178,13 +178,13 @@ mod tests {
 
     impl Interface for InterfaceA {
         fn id() -> InterfaceID {
-            NonZeroU32::new(13).unwrap()
+            InterfaceID::new(13)
         }
     }
 
     impl Interface for InterfaceB {
         fn id() -> InterfaceID {
-            NonZeroU32::new(14).unwrap()
+            InterfaceID::new(14)
         }
     }
 
