@@ -1,3 +1,7 @@
+mod node;
+
+pub use node::Node;
+
 // An interface is represented by a struct which has the methods of the
 // interface implemented on it. Each interface must be uniquely identified by
 // an ID. Inheritance is accomplished through struct composition and casting is
