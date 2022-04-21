@@ -73,4 +73,30 @@ impl Node {
 
         self.last_child = Some(node.clone());
     }
+
+    // Insert `node` before `self`.
+    // NOTE This is not exactly the same as the `insertBefore` method that is
+    //      defined on the `Node` interface in the DOM standard, but the
+    //      outcome should be the same.
+    pub fn insert_before(&mut self, mut node: Dom<Node>) {
+        debug_assert!(node.parent().is_none());
+        debug_assert!(node.next_sibling().is_none());
+        debug_assert!(node.previous_sibling().is_none());
+        debug_assert!(node != *self);
+
+        node.previous_sibling = self.previous_sibling();
+        node.next_sibling = Some(Dom::from(&*self));
+        node.parent = self.parent();
+
+        match self.previous_sibling() {
+            Some(mut prev) => {
+                prev.next_sibling = Some(node.clone());
+            },
+            None => {
+                self.parent().unwrap().first_child = Some(node.clone());
+            },
+        }
+
+        self.previous_sibling = Some(node.clone());
+    }
 }
