@@ -48,4 +48,29 @@ impl Node {
     pub fn next_sibling(&self) -> Option<Dom<Node>> {
         self.next_sibling.clone()
     }
+
+    // Append `node` as the last child of `self`.
+    pub fn append(&mut self, mut node: Dom<Node>) {
+        debug_assert!(node.parent().is_none());
+        debug_assert!(node.next_sibling().is_none());
+        debug_assert!(node.previous_sibling().is_none());
+        debug_assert!(node != *self);
+
+        node.previous_sibling = self.last_child();
+        node.next_sibling = None;
+        node.parent = Some(Dom::from(&*self));
+
+        match self.last_child() {
+            Some(mut last) => {
+                last.next_sibling = Some(node.clone());
+            },
+            None => {
+                debug_assert!(self.first_child().is_none());
+                self.first_child = Some(node.clone());
+                // self.last_child is set at the end of the match
+            },
+        }
+
+        self.last_child = Some(node.clone());
+    }
 }
