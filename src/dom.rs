@@ -134,7 +134,9 @@ impl<T> Drop for Dom<T> {
 
 impl<T> PartialEq for Dom<T> {
     fn eq(&self, other: &Dom<T>) -> bool {
-        self.ptr == other.ptr
+        let self_ptr: *const T = self.deref();
+        let other_ptr: *const T = other.deref();
+        self_ptr == other_ptr
     }
 }
 
