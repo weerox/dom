@@ -140,6 +140,14 @@ impl<T> PartialEq for Dom<T> {
     }
 }
 
+impl<T> PartialEq<T> for Dom<T> {
+    fn eq(&self, other: &T) -> bool {
+        let self_ptr: *const T = self.deref();
+        let other_ptr: *const T = other;
+        self_ptr == other_ptr
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
