@@ -124,4 +124,27 @@ impl Node {
 
         self.previous_sibling = Some(node.clone());
     }
+
+    // Insert `node` after `self`.
+    pub fn insert_after(&mut self, mut node: Dom<Node>) {
+        debug_assert!(node.parent().is_none());
+        debug_assert!(node.next_sibling().is_none());
+        debug_assert!(node.previous_sibling().is_none());
+        debug_assert!(node != *self);
+
+        node.previous_sibling = Some(Dom::from(&*self));
+        node.next_sibling = self.next_sibling();
+        node.parent = self.parent();
+
+        match self.next_sibling() {
+            Some(mut next) => {
+                next.previous_sibling = Some(node.clone());
+            },
+            None => {
+                self.parent().unwrap().last_child = Some(node.clone());
+            },
+        }
+
+        self.next_sibling = Some(node.clone());
+    }
 }
