@@ -49,6 +49,49 @@ impl Node {
         self.next_sibling.clone()
     }
 
+    // Detach the subtree that this node is the root of.
+    pub fn detach(&mut self) {
+        match self.parent() {
+            None => {
+                // The node doesn't belong to a tree, nothing to do.
+                // This also means that it shouldn't have any siblings.
+                debug_assert!(self.previous_sibling().is_none());
+                debug_assert!(self.next_sibling().is_none());
+            },
+            Some(mut parent) => {
+                debug_assert!(parent.first_child().is_some());
+                debug_assert!(parent.last_child().is_some());
+                if parent.first_child().unwrap() == *self {
+                    parent.first_child = self.next_sibling();
+                }
+
+                if parent.last_child().unwrap() == *self {
+                    parent.last_child = self.previous_sibling();
+                }
+
+                // TODO The `None` case in these two matches should basically
+                // correspond to the if-cases above.
+                match self.previous_sibling() {
+                    Some(mut prev) => {
+                        prev.next_sibling = self.next_sibling();
+                    },
+                    None => (),
+                }
+
+                match self.next_sibling() {
+                    Some(mut next) => {
+                        next.previous_sibling = self.previous_sibling();
+                    },
+                    None => (),
+                }
+
+                self.previous_sibling = None;
+                self.next_sibling = None;
+                self.parent = None;
+            },
+        }
+    }
+
     // Append `node` as the last child of `self`.
     pub fn append(&mut self, mut node: Dom<Node>) {
         debug_assert!(node.parent().is_none());
@@ -146,5 +189,104 @@ impl Node {
         }
 
         self.next_sibling = Some(node.clone());
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn detach_new_node() {
+        let mut node = Dom::new(Node::new());
+
+        node.detach();
+
+        assert!(node.parent().is_none());
+        assert!(node.previous_sibling().is_none());
+        assert!(node.next_sibling().is_none());
+        assert!(node.first_child().is_none());
+        assert!(node.last_child().is_none());
+    }
+
+    #[test]
+    fn detach_node_without_siblings() {
+        let mut parent = Dom::new(Node::new());
+        let mut child = Dom::new(Node::new());
+
+        parent.append(child.clone());
+
+        child.detach();
+
+        assert!(child.parent().is_none());
+        assert!(child.previous_sibling().is_none());
+        assert!(child.next_sibling().is_none());
+        assert!(child.first_child().is_none());
+        assert!(child.last_child().is_none());
+
+        assert!(parent.first_child().is_none());
+        assert!(parent.last_child().is_none());
+    }
+
+    #[test]
+    fn detach_node_with_siblings() {
+        let mut parent = Dom::new(Node::new());
+        let     first  = Dom::new(Node::new());
+        let     last   = Dom::new(Node::new());
+        let mut node   = Dom::new(Node::new());
+
+        parent.append(first.clone());
+        parent.append(node.clone());
+        parent.append(last.clone());
+
+        node.detach();
+
+        assert!(node.parent().is_none());
+        assert!(node.previous_sibling().is_none());
+        assert!(node.next_sibling().is_none());
+        assert!(node.first_child().is_none());
+        assert!(node.last_child().is_none());
+
+        assert!(first.parent().is_some());
+        assert!(last.parent().is_some());
+        assert!(first.parent().unwrap() == parent);
+        assert!(last.parent().unwrap() == parent);
+
+        assert!(first.next_sibling().is_some());
+        assert!(last.previous_sibling().is_some());
+        assert!(first.next_sibling().unwrap() == last);
+        assert!(last.previous_sibling().unwrap() == first);
+
+        assert!(parent.first_child().is_some());
+        assert!(parent.last_child().is_some());
+        assert!(parent.first_child().unwrap() == first);
+        assert!(parent.last_child().unwrap() == last);
+    }
+
+    #[test]
+    fn detach_node_with_next_sibling() {
+        let mut parent = Dom::new(Node::new());
+        let mut node   = Dom::new(Node::new());
+        let     next   = Dom::new(Node::new());
+
+        parent.append(node.clone());
+        parent.append(next.clone());
+
+        node.detach();
+
+        assert!(node.parent().is_none());
+        assert!(node.previous_sibling().is_none());
+        assert!(node.next_sibling().is_none());
+        assert!(node.first_child().is_none());
+        assert!(node.last_child().is_none());
+
+        assert!(parent.first_child().is_some());
+        assert!(parent.last_child().is_some());
+        assert!(parent.first_child().unwrap() == parent.last_child().unwrap());
+
+        assert!(next.parent().is_some());
+        assert!(next.parent().unwrap() == parent);
+        assert!(next.next_sibling().is_none());
+        assert!(next.previous_sibling().is_none());
     }
 }
