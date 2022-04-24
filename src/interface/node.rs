@@ -105,16 +105,16 @@ impl Node {
 
         match self.last_child() {
             Some(mut last) => {
-                last.next_sibling = Some(node.clone());
+                last.next_sibling = Some(Dom::clone(&node));
             },
             None => {
                 debug_assert!(self.first_child().is_none());
-                self.first_child = Some(node.clone());
+                self.first_child = Some(Dom::clone(&node));
                 // self.last_child is set at the end of the match
             },
         }
 
-        self.last_child = Some(node.clone());
+        self.last_child = Some(Dom::clone(&node));
     }
 
     // Prepend `node` as the first child of `self`.
@@ -130,16 +130,16 @@ impl Node {
 
         match self.first_child() {
             Some(mut first) => {
-                first.previous_sibling = Some(node.clone());
+                first.previous_sibling = Some(Dom::clone(&node));
             },
             None => {
                 debug_assert!(self.last_child().is_none());
-                self.last_child = Some(node.clone());
+                self.last_child = Some(Dom::clone(&node));
                 // self.first_child is set at the end of the match
             },
         }
 
-        self.first_child = Some(node.clone());
+        self.first_child = Some(Dom::clone(&node));
     }
 
     // Insert `node` before `self`.
@@ -158,14 +158,14 @@ impl Node {
 
         match self.previous_sibling() {
             Some(mut prev) => {
-                prev.next_sibling = Some(node.clone());
+                prev.next_sibling = Some(Dom::clone(&node));
             },
             None => {
-                self.parent().unwrap().first_child = Some(node.clone());
+                self.parent().unwrap().first_child = Some(Dom::clone(&node));
             },
         }
 
-        self.previous_sibling = Some(node.clone());
+        self.previous_sibling = Some(Dom::clone(&node));
     }
 
     // Insert `node` after `self`.
@@ -181,14 +181,14 @@ impl Node {
 
         match self.next_sibling() {
             Some(mut next) => {
-                next.previous_sibling = Some(node.clone());
+                next.previous_sibling = Some(Dom::clone(&node));
             },
             None => {
-                self.parent().unwrap().last_child = Some(node.clone());
+                self.parent().unwrap().last_child = Some(Dom::clone(&node));
             },
         }
 
-        self.next_sibling = Some(node.clone());
+        self.next_sibling = Some(Dom::clone(&node));
     }
 }
 
@@ -214,7 +214,7 @@ mod tests {
         let mut parent = Dom::new(Node::new());
         let mut child = Dom::new(Node::new());
 
-        parent.append(child.clone());
+        parent.append(Dom::clone(&child));
 
         child.detach();
 
@@ -235,9 +235,9 @@ mod tests {
         let     last   = Dom::new(Node::new());
         let mut node   = Dom::new(Node::new());
 
-        parent.append(first.clone());
-        parent.append(node.clone());
-        parent.append(last.clone());
+        parent.append(Dom::clone(&first));
+        parent.append(Dom::clone(&node));
+        parent.append(Dom::clone(&last));
 
         node.detach();
 
@@ -269,8 +269,8 @@ mod tests {
         let mut node   = Dom::new(Node::new());
         let     next   = Dom::new(Node::new());
 
-        parent.append(node.clone());
-        parent.append(next.clone());
+        parent.append(Dom::clone(&node));
+        parent.append(Dom::clone(&next));
 
         node.detach();
 

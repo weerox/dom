@@ -48,6 +48,9 @@ impl<T> Dom<T> {
     }
 }
 
+// NOTE Should preferably be used as an associated function to emphasize that
+//      it is the `Dom` that is cloned and not the `T`,
+//      i.e. `Dom::clone(&node)` instead of `node.clone()`.
 impl<T> Clone for Dom<T> {
         fn clone(&self) -> Dom<T> {
             let dom = Dom {
@@ -155,7 +158,7 @@ mod tests {
     #[test]
     fn clone_increases_count() {
         let dom1 = Dom::new(1_u32);
-        let dom2 = dom1.clone();
+        let dom2 = Dom::clone(&dom1);
 
         assert_eq!(dom1.count(), dom2.count());
         assert_eq!(dom1.count(), 2);
@@ -209,7 +212,7 @@ mod tests {
     #[test]
     fn multi_mut_different_dom() {
         let mut dom1 = Dom::new(1234_u32);
-        let mut dom2 = dom1.clone();
+        let mut dom2 = Dom::clone(&dom1);
 
         // NOTE This is possible because
         // the different references are aquired through
@@ -226,7 +229,7 @@ mod tests {
     #[test]
     fn dom_clone_equality() {
         let dom1 = Dom::new(1234_u32);
-        let dom2 = dom1.clone();
+        let dom2 = Dom::clone(&dom1);
 
         assert!(dom1 == dom2);
     }

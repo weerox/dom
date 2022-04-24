@@ -204,7 +204,7 @@ mod tests {
     fn simple_cast() {
         interface_init();
         let a = Dom::new(InterfaceA(InterfaceB(InterfaceA::id(), 35)));
-        let b: Dom<InterfaceB> = a.clone().cast();
+        let b: Dom<InterfaceB> = Dom::clone(&a).cast();
 
         assert!(b.1 == 35);
     }
