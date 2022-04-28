@@ -1,6 +1,10 @@
 mod node;
+mod document;
+mod element;
 
 pub use node::Node;
+pub use document::Document;
+pub use element::Element;
 
 // An interface is represented by a struct which has the methods of the
 // interface implemented on it. Each interface must be uniquely identified by

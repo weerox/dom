@@ -9,12 +9,14 @@ pub use crate::cast::HIERARCHY;
 
 pub mod interface;
 
-use crate::interface::{Node};
+use crate::interface::{Node, Document, Element};
 
 pub fn init() {
     let mut hier = HIERARCHY.write().unwrap();
 
     hier.register(Node::id(), None);
+    hier.register(Document::id(), Some(Node::id()));
+    hier.register(Element::id(), Some(Node::id()));
 }
 
 #[cfg(test)]
