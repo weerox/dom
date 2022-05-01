@@ -20,6 +20,17 @@ pub fn init() {
 }
 
 #[cfg(test)]
+pub(crate) mod tests_init {
+    use crate::init;
+    use crate::cast::HIERARCHY;
+
+    pub fn hierarchy_init() {
+        HIERARCHY.write().unwrap().clear();
+        init();
+    }
+}
+
+#[cfg(test)]
 mod tests {
     #[test]
     fn it_works() {

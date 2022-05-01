@@ -120,7 +120,7 @@ impl Hierarchy {
     // The test could will do repeated initialization, so we have to introduce
     // the ability to clear the map when testing.
     #[cfg(test)]
-    fn clear(&mut self) {
+    pub(crate) fn clear(&mut self) {
         self.map.clear();
     }
 }
