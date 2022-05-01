@@ -1,4 +1,5 @@
 use crate::interface::Node;
+use crate::Dom;
 use crate::{Interface, InterfaceID};
 
 use std::ops::{Deref, DerefMut};
@@ -25,5 +26,22 @@ impl Deref for Document {
 impl DerefMut for Document {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self._inherited
+    }
+}
+
+impl Document {
+    pub fn new() -> Self {
+        Document {
+            _inherited: Node::new()
+        }
+    }
+
+    pub fn create() -> Dom<Self> {
+        let mut document = Document::new();
+
+        // Set the appropriate interface ID.
+        unsafe { *std::mem::transmute::<&mut Document, &mut InterfaceID>(&mut document) = Document::id(); }
+
+        Dom::new(document)
     }
 }
